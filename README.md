@@ -16,7 +16,11 @@ Create tables, triggers, and notifications as in the [example](pgsql\create.sql)
 
 1. Run server: ```npm run dev``` or ```node index.js```
 
-2. Run client: ```node client.js```
+2. Client
+
+Node client: ```node client.js```
+
+Python client: ```python3 client.py```
 
 3. Insert row to table
 
