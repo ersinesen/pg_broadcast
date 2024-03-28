@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS http_response (
 -- notify function
 CREATE OR REPLACE FUNCTION notify_websocket_server() RETURNS TRIGGER AS $$
 BEGIN
-  PERFORM pg_notify('http_response_inserted', NEW.node_tag || ',' || NEW.src_ip || ',' || NEW.src_port || ',' || NEW.code);
+  PERFORM pg_notify('http_response_inserted', NEW.ts || ',' || NEW.node_tag || ',' || NEW.src_ip || ',' || NEW.src_port || ',' || NEW.code);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

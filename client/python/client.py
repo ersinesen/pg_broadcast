@@ -25,7 +25,7 @@ import logging
 from logging import StreamHandler
 import json
 from uuid import uuid4
-
+from datetime import datetime
 
 class WebSocketClient:
     """
@@ -44,12 +44,23 @@ class WebSocketClient:
                                           on_message=self.on_message,
                                           on_close=self.on_close,
                                           on_error=self.on_error)
+        # Create a custom log format function
+        custom_format = '[%(asctime)s] [%(levelname)s] %(message)s'
+
+        # Configure logging
+        logging.basicConfig(level=logging.INFO, format=custom_format, filename='client.log')
+        self.logger = logging.getLogger(__name__)
+
+        # Add stdout to log output
+        stdout_handler = StreamHandler()
+        stdout_handler.setFormatter(logging.Formatter(fmt=custom_format))
+        self.logger.addHandler(stdout_handler)
 
     def on_open(self, ws):
         """
         Handles the WebSocket connection opened event.
         """
-        logger.info(f"WebSocket connection established for client {self.client_id}")
+        self.logger.info(f"WebSocket connection established for client {self.client_id}")
 
         # Send client ID to server
         ws.send(json.dumps({"action": "client_id", "clientId": self.client_id}))
@@ -63,35 +74,34 @@ class WebSocketClient:
         Handles the WebSocket message event.
         :param message: The incoming message from the server.
         """
-        logger.info(f"Received message from server: {message}")
+        self.logger.info(f"Received message from server: {message}")
+        # Extract timestamp from data received from the server
+        timestamp_from_server = message.split(',')[0]
+        if timestamp_from_server:
+            # Calculate the latency
+            current_time = datetime.now()
+            timestamp_difference = current_time - datetime.fromisoformat(timestamp_from_server)
+            latency_in_seconds = timestamp_difference.total_seconds()
+            self.logger.info(f"Latency: {latency_in_seconds} seconds")
+
 
     def on_close(self, ws):
         """
         Handles the WebSocket connection closed event.
         """
-        logger.info("WebSocket connection closed")
+        self.logger.info("WebSocket connection closed")
 
     def on_error(self, ws, error):
         """
         Handles the WebSocket error event.
         :param error: The error object.
         """
-        logger.error(f"WebSocket error: {error}")
+        self.logger.error(f"WebSocket error: {error}")
 
-# Create a custom log format function
-custom_format = '[%(asctime)s] [%(levelname)s] %(message)s'
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format=custom_format, filename='client.log')
-logger = logging.getLogger(__name__)
+if __name__ == '__main__':
+    # Create WebSocket client instance
+    client = WebSocketClient("ws://localhost:8080")
 
-# Add stdout to log output
-stdout_handler = StreamHandler()
-stdout_handler.setFormatter(logging.Formatter(fmt=custom_format))
-logger.addHandler(stdout_handler)
-
-# Create WebSocket client instance
-client = WebSocketClient("ws://localhost:8080")
-
-# Run the WebSocket client
-client.ws.run_forever()
+    # Run the WebSocket client
+    client.ws.run_forever()
