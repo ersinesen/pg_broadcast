@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pg_broadcast Client</title>
+    <script src="pg_broadcast_client.js" defer></script>
+</head>
+<body>
+    <h1>pg_broadcast Client</h1>
+    <p>Message:</p>
+    <div id="messageContainer"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Create WebSocket client instance
+            const serverUrl = 'wss://echo.websocket.org/';
+            const channelName = ''; // No specific channel required for echo server
+            const client = new WebSocketClient(serverUrl, channelName);
+            
+            // Wait for 2 seconds before sending the message
+            setTimeout(function() {
+                client.ws.send('Hello echoer.');
+            }, 2000); 
+        });
+    </script>
+</body>
+</html>
